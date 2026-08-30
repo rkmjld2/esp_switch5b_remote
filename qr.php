@@ -1,26 +1,41 @@
 ```php
 <?php
 
-$controller_id = isset($_GET['controller_id'])
-    ? trim($_GET['controller_id'])
-    : '';
-
-if ($controller_id === '') {
-    die('Controller ID missing.');
-}
-
-/* Allow only safe controller IDs */
-if (!preg_match('/^[A-Za-z0-9_-]+$/', $controller_id)) {
-    die('Invalid Controller ID.');
-}
-
 /*
- * ESP-SWITCH5B customer URL
- */
-$base_url = 'https://esp-switch5b-remote.onrender.com/c/';
+============================================================
+ ESP-SWITCH5B REMOTE
+ QR CODE PAGE
+============================================================
+*/
+
+$controller_id = trim($_GET["controller_id"] ?? "");
+
+
+/* =========================================================
+   CHECK CONTROLLER ID
+========================================================= */
+
+if ($controller_id === "") {
+    die("Controller ID missing.");
+}
+
+
+/* =========================================================
+   VALIDATE CONTROLLER ID
+========================================================= */
+
+if (!preg_match('/^[A-Za-z0-9_-]+$/', $controller_id)) {
+    die("Invalid Controller ID.");
+}
+
+
+/* =========================================================
+   CREATE CUSTOMER CONTROLLER URL
+========================================================= */
 
 $controller_url =
-    $base_url . rawurlencode($controller_id);
+    "https://esp-switch5b-remote.onrender.com/c/" .
+    rawurlencode($controller_id);
 
 ?>
 
@@ -37,111 +52,211 @@ $controller_url =
 
 <title>Controller QR Code</title>
 
+
 <style>
 
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 30px;
-    background: #f2f2f2;
+* {
+    box-sizing: border-box;
 }
+
+body {
+
+    margin: 0;
+
+    padding: 30px;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f2f2f2;
+
+    text-align: center;
+}
+
 
 .box {
-    display: inline-block;
+
+    max-width: 500px;
+
+    margin: auto;
+
     padding: 30px;
+
     background: white;
-    border: 1px solid #ccc;
+
     border-radius: 12px;
-    box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+
+    border: 1px solid #ccc;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0,0,0,0.15);
 }
 
-h2 {
+
+h1 {
+
     margin-top: 0;
-    margin-bottom: 20px;
+
+    color: #333;
+
 }
+
 
 .controller {
-    font-size: 20px;
+
+    font-size: 22px;
+
     font-weight: bold;
-    margin-bottom: 20px;
+
+    margin: 15px 0 25px 0;
+
 }
 
+
 #qrcode {
+
     width: 300px;
-    min-height: 300px;
-    margin: auto;
+
+    height: 300px;
+
+    margin: 0 auto;
+
 }
+
 
 #qrcode img,
 #qrcode canvas {
+
     display: block;
+
     margin: auto;
+
 }
+
 
 .url {
-    margin-top: 18px;
+
+    margin-top: 20px;
+
     margin-bottom: 20px;
-    word-break: break-all;
+
     font-size: 15px;
+
+    word-break: break-all;
+
 }
+
 
 .url a {
+
     color: #007bff;
+
     text-decoration: none;
+
 }
+
 
 .url a:hover {
+
     text-decoration: underline;
+
 }
+
 
 .buttons {
+
     margin-top: 20px;
+
 }
 
-button {
+
+button,
+.open-button {
+
+    display: inline-block;
+
     border: none;
+
     border-radius: 6px;
+
     padding: 12px 20px;
+
     margin: 5px;
+
     font-size: 15px;
+
     cursor: pointer;
+
+    text-decoration: none;
+
 }
+
 
 .download-button {
+
     background: #28a745;
+
     color: white;
+
 }
+
 
 .print-button {
+
     background: #007bff;
+
     color: white;
+
 }
+
 
 .open-button {
+
     background: #6c757d;
+
     color: white;
+
 }
 
-button:hover {
+
+button:hover,
+.open-button:hover {
+
     opacity: 0.85;
+
 }
+
+
+/* =========================================================
+   PRINT
+========================================================= */
 
 @media print {
 
     body {
+
         background: white;
+
         padding: 0;
+
     }
 
     .box {
+
         border: none;
+
         box-shadow: none;
+
     }
 
     .buttons,
     .url {
+
         display: none;
+
     }
 
 }
@@ -150,28 +265,41 @@ button:hover {
 
 </head>
 
+
 <body>
+
 
 <div class="box">
 
-<h2>
-ESP-SWITCH5B
-</h2>
+
+<h1>
+ESP-SWITCH5B REMOTE
+</h1>
+
 
 <div class="controller">
 
 Controller:
+
 <?= htmlspecialchars(
     $controller_id,
     ENT_QUOTES,
-    'UTF-8'
+    "UTF-8"
 ) ?>
 
 </div>
 
-<!-- QR CODE -->
+
+<!-- ======================================================
+     QR CODE
+======================================================= -->
 
 <div id="qrcode"></div>
+
+
+<!-- ======================================================
+     CONTROLLER URL
+======================================================= -->
 
 <div class="url">
 
@@ -179,20 +307,28 @@ Controller:
     href="<?= htmlspecialchars(
         $controller_url,
         ENT_QUOTES,
-        'UTF-8'
+        "UTF-8"
     ) ?>"
     target="_blank"
 >
 <?= htmlspecialchars(
     $controller_url,
     ENT_QUOTES,
-    'UTF-8'
+    "UTF-8"
 ) ?>
 </a>
 
 </div>
 
+
+<!-- ======================================================
+     BUTTONS
+======================================================= -->
+
 <div class="buttons">
+
+
+<!-- DOWNLOAD -->
 
 <button
     type="button"
@@ -202,6 +338,9 @@ Controller:
 DOWNLOAD QR CODE
 </button>
 
+
+<!-- PRINT -->
+
 <button
     type="button"
     class="print-button"
@@ -210,48 +349,66 @@ DOWNLOAD QR CODE
 PRINT QR CODE
 </button>
 
-<button
-    type="button"
+
+<!-- OPEN CONTROLLER -->
+
+<a
     class="open-button"
-    onclick="openController()"
+    href="<?= htmlspecialchars(
+        $controller_url,
+        ENT_QUOTES,
+        "UTF-8"
+    ) ?>"
+    target="_blank"
 >
 OPEN CONTROLLER
-</button>
+</a>
+
 
 </div>
 
+
 </div>
 
 
-<!-- QR CODE JAVASCRIPT LIBRARY -->
+<!-- ======================================================
+     QR CODE LIBRARY
+======================================================= -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+</script>
 
 
 <script>
 
-/*
- * Controller URL
- */
+/* =========================================================
+   CONTROLLER URL
+========================================================= */
 
 const controllerURL =
     <?= json_encode($controller_url) ?>;
+
 
 const controllerID =
     <?= json_encode($controller_id) ?>;
 
 
-/*
- * Generate QR code locally
- */
+/* =========================================================
+   GENERATE QR CODE
+========================================================= */
 
 const qrContainer =
     document.getElementById("qrcode");
 
+
 const qr =
     new QRCode(
+
         qrContainer,
+
         {
+
             text: controllerURL,
 
             width: 300,
@@ -260,23 +417,22 @@ const qr =
 
             correctLevel:
                 QRCode.CorrectLevel.H
+
         }
+
     );
 
 
-/*
- * DOWNLOAD QR CODE
- */
+/* =========================================================
+   DOWNLOAD QR CODE
+========================================================= */
 
 function downloadQR()
 {
 
-    /*
-     * QRCodeJS normally creates a canvas.
-     */
-
     const canvas =
         qrContainer.querySelector("canvas");
+
 
     if (canvas)
     {
@@ -284,28 +440,32 @@ function downloadQR()
         const link =
             document.createElement("a");
 
+
         link.download =
             controllerID + "_QR.png";
+
 
         link.href =
             canvas.toDataURL("image/png");
 
+
         document.body.appendChild(link);
+
 
         link.click();
 
+
         document.body.removeChild(link);
 
+
         return;
+
     }
 
 
-    /*
-     * Fallback if an image was created.
-     */
-
     const image =
         qrContainer.querySelector("img");
+
 
     if (image)
     {
@@ -313,59 +473,65 @@ function downloadQR()
         const canvas =
             document.createElement("canvas");
 
+
         canvas.width = 300;
 
         canvas.height = 300;
 
+
         const context =
             canvas.getContext("2d");
 
+
         context.drawImage(
+
             image,
+
             0,
+
             0,
+
             300,
+
             300
+
         );
+
 
         const link =
             document.createElement("a");
 
+
         link.download =
             controllerID + "_QR.png";
+
 
         link.href =
             canvas.toDataURL("image/png");
 
+
         document.body.appendChild(link);
+
 
         link.click();
 
+
         document.body.removeChild(link);
 
+
         return;
+
     }
 
 
     alert(
-        "QR code is not ready yet. Please wait a moment and try again."
+        "QR code is not ready. Please wait and try again."
     );
-}
 
-
-/*
- * OPEN CONTROLLER
- */
-
-function openController()
-{
-    window.open(
-        controllerURL,
-        "_blank"
-    );
 }
 
 </script>
+
 
 </body>
 
