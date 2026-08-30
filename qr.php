@@ -8,21 +8,14 @@ if ($controller_id === '') {
     die('Controller ID missing.');
 }
 
-/*
- * Allow only safe controller IDs.
- */
 if (!preg_match('/^[A-Za-z0-9_-]+$/', $controller_id)) {
     die('Invalid Controller ID.');
 }
 
-$base_url = 'https://esp-switch5a-remote.onrender.com/c/';
+$base_url = 'https://esp-switch5b-remote.onrender.com/c/';
 
 $controller_url = $base_url . rawurlencode($controller_id);
 
-/*
- * QR image is generated using Google Chart API.
- * No database or firmware changes are required.
- */
 $qr_url =
     'https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=' .
     urlencode($controller_url);
@@ -31,13 +24,10 @@ $qr_url =
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8">
-
 <title>Controller QR Code</title>
 
 <style>
-
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -71,7 +61,6 @@ button {
     margin-top: 20px;
     cursor: pointer;
 }
-
 </style>
 
 </head>
@@ -80,9 +69,7 @@ button {
 
 <div class="box">
 
-<h2>
-Controller QR Code
-</h2>
+<h2>Controller QR Code</h2>
 
 <p>
 <strong>
