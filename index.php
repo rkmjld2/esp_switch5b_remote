@@ -27,7 +27,10 @@ Timezone:
 require_once __DIR__ . "/config.php";
 require_once __DIR__ . "/db.php";
 
+date_default_timezone_set("Asia/Kolkata");
+
 session_start();
+
 
 /* =========================================================
    LOGOUT
@@ -246,7 +249,6 @@ if (isset($_POST["save_start"])) {
     $start_time =
         trim($_POST["start_time"] ?? "");
 
-
     if ($controller_id === "") {
 
         $message = "Controller ID missing.";
@@ -261,23 +263,12 @@ if (isset($_POST["save_start"])) {
     }
     else {
 
-        /*
-         * HTML datetime-local gives:
-         *
-         * YYYY-MM-DDTHH:MM
-         *
-         * Convert to:
-         *
-         * YYYY-MM-DD HH:MM:00
-         */
-
         $start_datetime =
             str_replace("T", " ", $start_time);
 
         if (strlen($start_datetime) === 16) {
             $start_datetime .= ":00";
         }
-
 
         $stmt = $conn->prepare("
             UPDATE controllers
@@ -338,7 +329,6 @@ if (isset($_POST["save_end"])) {
     $end_time =
         trim($_POST["end_time"] ?? "");
 
-
     if ($controller_id === "") {
 
         $message = "Controller ID missing.";
@@ -359,7 +349,6 @@ if (isset($_POST["save_end"])) {
         if (strlen($end_datetime) === 16) {
             $end_datetime .= ":00";
         }
-
 
         $stmt = $conn->prepare("
             UPDATE controllers
@@ -427,7 +416,6 @@ if (isset($_POST["set_pin"])) {
             ? (int)$_POST["value"]
             : -1;
 
-
     if ($controller_id === "") {
 
         $message = "Controller ID missing.";
@@ -489,11 +477,6 @@ if (isset($_POST["set_pin"])) {
                         "error";
 
                 } else {
-
-                    /*
-                     * PIN has already been validated
-                     * as D1-D8.
-                     */
 
                     $sql = "
                         UPDATE esp_control
@@ -632,18 +615,11 @@ if ($selected_controller !== "") {
             $row =
                 $result->fetch_assoc();
 
-
             $selected_customer =
                 $row["customer_name"] ?? "";
 
             $selected_active =
                 (int)($row["active"] ?? 0);
-
-            /*
-             * IMPORTANT:
-             * NULL last_seen is converted to
-             * "Not yet seen".
-             */
 
             if (
                 isset($row["last_seen"]) &&
@@ -660,11 +636,6 @@ if ($selected_controller !== "") {
                     "Not yet seen";
             }
 
-
-            /*
-             * Start and End time may be NULL.
-             */
-
             $selected_start_time =
                 $row["start_time"] ?? "";
 
@@ -678,7 +649,7 @@ if ($selected_controller !== "") {
 
 
 /* =========================================================
-   FORMAT DATETIME FOR HTML datetime-local
+   FORMAT DATETIME FOR HTML
 ========================================================= */
 
 $start_input_value = "";
@@ -686,10 +657,7 @@ $start_input_value = "";
 $end_input_value = "";
 
 
-if (
-    $selected_start_time !== "" &&
-    $selected_start_time !== null
-) {
+if ($selected_start_time !== "") {
 
     $timestamp =
         strtotime($selected_start_time);
@@ -702,10 +670,7 @@ if (
 }
 
 
-if (
-    $selected_end_time !== "" &&
-    $selected_end_time !== null
-) {
+if ($selected_end_time !== "") {
 
     $timestamp =
         strtotime($selected_end_time);
@@ -769,14 +734,9 @@ if ($selected_controller !== "") {
             $row =
                 $result->fetch_assoc();
 
-            for (
-                $i = 1;
-                $i <= 8;
-                $i++
-            ) {
+            for ($i = 1; $i <= 8; $i++) {
 
-                $pin =
-                    "D" . $i;
+                $pin = "D" . $i;
 
                 $pin_values[$pin] =
                     (int)($row[$pin] ?? 0);
@@ -801,7 +761,6 @@ if ($selected_controller !== "") {
 
 <title>ESP-SWITCH5 REMOTE</title>
 
-
 <style>
 
 * {
@@ -809,82 +768,50 @@ if ($selected_controller !== "") {
 }
 
 body {
-
     margin: 0;
-
     padding: 20px;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     background: #f2f2f2;
-
     color: #222;
 }
 
 .container {
-
     max-width: 950px;
-
     margin: auto;
-
     background: white;
-
     padding: 25px;
-
     border-radius: 12px;
-
-    box-shadow:
-        0 3px 15px
-        rgba(0,0,0,0.15);
+    box-shadow: 0 3px 15px rgba(0,0,0,0.15);
 }
 
 .header {
-
     position: relative;
-
     text-align: center;
-
     margin-bottom: 25px;
 }
 
 h1 {
-
     margin: 0 0 5px 0;
-
     color: #333;
 }
 
 .subtitle {
-
     color: #666;
 }
 
 .logout {
-
     position: absolute;
-
     right: 0;
-
     top: 0;
-
     text-decoration: none;
-
     background: #6c757d;
-
     color: white;
-
     padding: 8px 12px;
-
     border-radius: 5px;
-
     font-size: 13px;
 }
 
 .logout:hover {
-
     opacity: 0.85;
 }
 
@@ -894,37 +821,24 @@ h1 {
 ========================================================= */
 
 .controller-box {
-
     background: #f7f7f7;
-
     border: 1px solid #ddd;
-
     border-radius: 10px;
-
     padding: 20px;
-
     margin-bottom: 20px;
 }
 
 .controller-box label {
-
     display: block;
-
     font-weight: bold;
-
     margin-bottom: 8px;
 }
 
 .controller-box select {
-
     width: 100%;
-
     padding: 12px;
-
     font-size: 16px;
-
     border: 1px solid #aaa;
-
     border-radius: 6px;
 }
 
@@ -934,89 +848,97 @@ h1 {
 ========================================================= */
 
 .time-control {
-
     background: #eef6ff;
-
     border: 1px solid #b8d8f5;
-
     border-radius: 10px;
-
     padding: 20px;
-
     margin-bottom: 25px;
-
     text-align: center;
 }
 
 .time-control h2 {
-
     margin-top: 0;
-
     margin-bottom: 5px;
-
     color: #333;
 }
 
 .timezone {
-
     color: #555;
-
     font-size: 14px;
-
     margin-bottom: 20px;
 }
 
 .time-row {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(
-            2,
-            1fr
-        );
-
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-
     margin-bottom: 15px;
 }
 
 .time-box {
-
     background: white;
-
     border: 1px solid #ccc;
-
     border-radius: 8px;
-
-    padding: 15px;
+    padding: 18px;
 }
 
 .time-box label {
-
     display: block;
-
     font-weight: bold;
-
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-size: 16px;
 }
 
-.time-box input {
+
+/* =========================================================
+   IMPORTANT:
+   LARGE DATE/TIME INPUT
+========================================================= */
+
+.time-box input[type="datetime-local"] {
 
     width: 100%;
 
-    padding: 10px;
+    min-height: 52px;
 
-    border: 1px solid #aaa;
+    padding: 12px;
 
-    border-radius: 6px;
+    border: 2px solid #aaa;
 
-    font-size: 15px;
+    border-radius: 8px;
+
+    font-size: 18px;
+
+    background: white;
+
+    cursor: pointer;
 }
+
+
+/*
+   When user is working with the time field,
+   make it visually obvious.
+*/
+
+.time-box input[type="datetime-local"]:focus {
+
+    border-color: #007bff;
+
+    outline: none;
+
+    box-shadow:
+        0 0 5px
+        rgba(0,123,255,0.35);
+}
+
+
+/* =========================================================
+   SAVE BUTTON
+========================================================= */
 
 .save-button {
 
-    margin-top: 10px;
+    margin-top: 12px;
 
     width: 100%;
 
@@ -1028,15 +950,14 @@ h1 {
 
     border-radius: 6px;
 
-    padding: 10px;
+    padding: 12px;
 
-    font-size: 15px;
+    font-size: 16px;
 
     cursor: pointer;
 }
 
 .save-button:hover {
-
     opacity: 0.85;
 }
 
@@ -1123,6 +1044,48 @@ h1 {
     font-weight: bold;
 
     font-size: 16px;
+}
+
+
+/* =========================================================
+   ONLINE / OFFLINE
+========================================================= */
+
+.online {
+
+    color: #198754;
+
+    font-weight: bold;
+}
+
+.offline {
+
+    color: #dc3545;
+
+    font-weight: bold;
+}
+
+.status-dot {
+
+    display: inline-block;
+
+    width: 12px;
+
+    height: 12px;
+
+    border-radius: 50%;
+
+    margin-right: 6px;
+}
+
+.status-online {
+
+    background: #28a745;
+}
+
+.status-offline {
+
+    background: #dc3545;
 }
 
 
@@ -1283,14 +1246,19 @@ button:hover {
 
     .pin-grid {
 
-        grid-template-columns:
-            1fr 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .time-row {
 
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
+    }
+
+    .time-box input[type="datetime-local"] {
+
+        font-size: 17px;
+
+        min-height: 55px;
     }
 }
 
@@ -1298,12 +1266,9 @@ button:hover {
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
 <div class="header">
 
@@ -1379,9 +1344,7 @@ echo htmlspecialchars(
     "UTF-8"
 );
 
-if (
-    !empty($controller["customer_name"])
-) {
+if (!empty($controller["customer_name"])) {
 
     echo " - ";
 
@@ -1640,22 +1603,14 @@ echo htmlspecialchars(
 <div class="info-card">
 
 <div class="info-title">
-Active
+Controller Status
 </div>
 
 <div
     class="info-value"
-    id="activeStatus"
+    id="onlineStatus"
 >
-
-<?php
-
-echo $selected_active
-    ? "YES"
-    : "NO";
-
-?>
-
+Checking...
 </div>
 
 </div>
@@ -1696,33 +1651,20 @@ echo htmlspecialchars(
 
 <div class="pin-grid">
 
-
 <?php
 
-for (
-    $i = 1;
-    $i <= 8;
-    $i++
-) {
+for ($i = 1; $i <= 8; $i++) {
 
-    $pin =
-        "D" . $i;
+    $pin = "D" . $i;
 
-    $value =
-        $pin_values[$pin];
+    $value = $pin_values[$pin];
 
 ?>
 
 <div class="pin-card">
 
 <div class="pin-name">
-
-<?php
-
-echo $pin;
-
-?>
-
+<?php echo $pin; ?>
 </div>
 
 
@@ -1766,9 +1708,7 @@ echo $value
 <input
     type="hidden"
     name="pin"
-    value="<?php
-        echo $pin;
-    ?>"
+    value="<?php echo $pin; ?>"
 >
 
 <input
@@ -1808,9 +1748,7 @@ ON
 <input
     type="hidden"
     name="pin"
-    value="<?php
-        echo $pin;
-    ?>"
+    value="<?php echo $pin; ?>"
 >
 
 <input
@@ -1828,7 +1766,6 @@ OFF
 </button>
 
 </form>
-
 
 </div>
 
@@ -1857,7 +1794,6 @@ Please select a controller.
 }
 
 ?>
-
 
 </div>
 
@@ -1888,40 +1824,30 @@ function selectController(id)
 
 /* =========================================================
    CURRENT TIME
-   Asia/Kolkata
 ========================================================= */
 
 function updateCurrentTime()
 {
 
-    const now =
-        new Date();
+    const now = new Date();
 
     const options = {
 
-        timeZone:
-            "Asia/Kolkata",
+        timeZone: "Asia/Kolkata",
 
-        year:
-            "numeric",
+        year: "numeric",
 
-        month:
-            "2-digit",
+        month: "2-digit",
 
-        day:
-            "2-digit",
+        day: "2-digit",
 
-        hour:
-            "2-digit",
+        hour: "2-digit",
 
-        minute:
-            "2-digit",
+        minute: "2-digit",
 
-        second:
-            "2-digit",
+        second: "2-digit",
 
-        hour12:
-            false
+        hour12: false
     };
 
     const parts =
@@ -1930,20 +1856,20 @@ function updateCurrentTime()
             options
         ).formatToParts(now);
 
-
     let data = {};
 
     parts.forEach(
         function(part)
         {
+
             if (part.type !== "literal")
             {
                 data[part.type] =
                     part.value;
             }
+
         }
     );
-
 
     const formatted =
         data.year +
@@ -1958,12 +1884,10 @@ function updateCurrentTime()
         ":" +
         data.second;
 
-
     const currentTime =
         document.getElementById(
             "currentTime"
         );
-
 
     if (currentTime)
     {
@@ -1989,12 +1913,243 @@ setInterval(
 
 
 /* =========================================================
+   ONLINE / OFFLINE CHECK
+========================================================= */
+
+function updateOnlineStatus()
+{
+
+    const lastSeenElement =
+        document.getElementById("lastSeen");
+
+    const statusElement =
+        document.getElementById("onlineStatus");
+
+    if (!lastSeenElement || !statusElement)
+    {
+        return;
+    }
+
+    const lastSeenText =
+        lastSeenElement.textContent.trim();
+
+    if (
+        lastSeenText === "" ||
+        lastSeenText === "Not yet seen"
+    )
+    {
+
+        statusElement.innerHTML =
+            '<span class="status-dot status-offline"></span>OFFLINE';
+
+        statusElement.className =
+            "info-value offline";
+
+        return;
+    }
+
+
+    /*
+     * Convert server last_seen to a JavaScript date.
+     *
+     * Database time is Asia/Kolkata.
+     */
+
+    const lastSeen =
+        new Date(
+            lastSeenText.replace(" ", "T")
+        );
+
+    if (isNaN(lastSeen.getTime()))
+    {
+
+        statusElement.innerHTML =
+            '<span class="status-dot status-offline"></span>OFFLINE';
+
+        statusElement.className =
+            "info-value offline";
+
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+    const difference =
+        (now.getTime() -
+         lastSeen.getTime()) / 1000;
+
+
+    /*
+     * Controller is considered ONLINE
+     * when last_seen is within 10 seconds.
+     */
+
+    if (difference <= 10)
+    {
+
+        statusElement.innerHTML =
+            '<span class="status-dot status-online"></span>ONLINE';
+
+        statusElement.className =
+            "info-value online";
+
+    }
+    else
+    {
+
+        statusElement.innerHTML =
+            '<span class="status-dot status-offline"></span>OFFLINE';
+
+        statusElement.className =
+            "info-value offline";
+    }
+}
+
+
+updateOnlineStatus();
+
+
+/* =========================================================
+   IMPORTANT TIME-SETTING FIX
+=========================================================
+
+   The page normally refreshes every 3 seconds.
+
+   BUT:
+
+   When START TIME or END TIME is being selected,
+   automatic refresh is temporarily stopped.
+
+   This prevents the calendar/time selector from
+   disappearing while the user is selecting a time.
+========================================================= */
+
+let timeEditing = false;
+
+
+/* START TIME */
+
+const startTime =
+    document.getElementById("start_time");
+
+if (startTime)
+{
+
+    startTime.addEventListener(
+        "focus",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+
+    startTime.addEventListener(
+        "click",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+
+    startTime.addEventListener(
+        "change",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+}
+
+
+/* END TIME */
+
+const endTime =
+    document.getElementById("end_time");
+
+if (endTime)
+{
+
+    endTime.addEventListener(
+        "focus",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+
+    endTime.addEventListener(
+        "click",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+
+    endTime.addEventListener(
+        "change",
+        function()
+        {
+            timeEditing = true;
+        }
+    );
+}
+
+
+/*
+ * When the user clicks elsewhere on the page,
+ * allow automatic refresh again.
+ *
+ * We deliberately do NOT immediately refresh.
+ * The normal 3-second timer will handle it.
+ */
+
+document.addEventListener(
+    "click",
+    function(event)
+    {
+
+        const target =
+            event.target;
+
+        if (
+            target !== startTime &&
+            target !== endTime
+        )
+        {
+
+            if (
+                !target.closest(
+                    ".time-box"
+                )
+            )
+            {
+                timeEditing = false;
+            }
+        }
+    }
+);
+
+
+/* =========================================================
    AUTO REFRESH
 ========================================================= */
 
 setInterval(
     function()
     {
+
+        /*
+         * DO NOT refresh while the user is
+         * selecting START or END time.
+         */
+
+        if (timeEditing)
+        {
+            return;
+        }
+
 
         <?php
 
@@ -2016,7 +2171,6 @@ setInterval(
 );
 
 </script>
-
 
 </body>
 
