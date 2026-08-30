@@ -22,13 +22,6 @@ $base_url = 'https://esp-switch5b-remote.onrender.com/c/';
 $controller_url =
     $base_url . rawurlencode($controller_id);
 
-/*
- * QR Code image
- */
-$qr_url =
-    'https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=' .
-    urlencode($controller_url);
-
 ?>
 
 <!DOCTYPE html>
@@ -74,9 +67,14 @@ h2 {
     margin-bottom: 20px;
 }
 
-.qr-image {
+#qrcode {
     width: 300px;
-    height: 300px;
+    min-height: 300px;
+    margin: auto;
+}
+
+#qrcode img,
+#qrcode canvas {
     display: block;
     margin: auto;
 }
@@ -129,9 +127,6 @@ button:hover {
     opacity: 0.85;
 }
 
-/*
- * When printing, hide the buttons and URL.
- */
 @media print {
 
     body {
@@ -174,16 +169,9 @@ Controller:
 
 </div>
 
-<img
-    id="qrImage"
-    class="qr-image"
-    src="<?= htmlspecialchars(
-        $qr_url,
-        ENT_QUOTES,
-        'UTF-8'
-    ) ?>"
-    alt="QR Code"
->
+<!-- QR CODE -->
+
+<div id="qrcode"></div>
 
 <div class="url">
 
@@ -225,14 +213,7 @@ PRINT QR CODE
 <button
     type="button"
     class="open-button"
-    onclick="window.open(
-        '<?= htmlspecialchars(
-            $controller_url,
-            ENT_QUOTES,
-            'UTF-8'
-        ) ?>',
-        '_blank'
-    )"
+    onclick="openController()"
 >
 OPEN CONTROLLER
 </button>
@@ -242,57 +223,146 @@ OPEN CONTROLLER
 </div>
 
 
+<!-- QR CODE JAVASCRIPT LIBRARY -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
 <script>
 
 /*
- * Download QR code as PNG
+ * Controller URL
  */
+
+const controllerURL =
+    <?= json_encode($controller_url) ?>;
+
+const controllerID =
+    <?= json_encode($controller_id) ?>;
+
+
+/*
+ * Generate QR code locally
+ */
+
+const qrContainer =
+    document.getElementById("qrcode");
+
+const qr =
+    new QRCode(
+        qrContainer,
+        {
+            text: controllerURL,
+
+            width: 300,
+
+            height: 300,
+
+            correctLevel:
+                QRCode.CorrectLevel.H
+        }
+    );
+
+
+/*
+ * DOWNLOAD QR CODE
+ */
+
 function downloadQR()
 {
-    const image =
-        document.getElementById("qrImage");
-
-    const controller =
-        <?= json_encode($controller_id) ?>;
 
     /*
-     * Fetch the QR image and convert it
-     * into a downloadable PNG.
+     * QRCodeJS normally creates a canvas.
      */
-    fetch(image.src)
-        .then(response => response.blob())
-        .then(blob => {
 
-            const url =
-                URL.createObjectURL(blob);
+    const canvas =
+        qrContainer.querySelector("canvas");
 
-            const link =
-                document.createElement("a");
+    if (canvas)
+    {
 
-            link.href = url;
+        const link =
+            document.createElement("a");
 
-            link.download =
-                controller + "_QR.png";
+        link.download =
+            controllerID + "_QR.png";
 
-            document.body.appendChild(link);
+        link.href =
+            canvas.toDataURL("image/png");
 
-            link.click();
+        document.body.appendChild(link);
 
-            document.body.removeChild(link);
+        link.click();
 
-            URL.revokeObjectURL(url);
+        document.body.removeChild(link);
 
-        })
-        .catch(error => {
+        return;
+    }
 
-            alert(
-                "Unable to download QR code. " +
-                "Please try again."
-            );
 
-            console.error(error);
+    /*
+     * Fallback if an image was created.
+     */
 
-        });
+    const image =
+        qrContainer.querySelector("img");
+
+    if (image)
+    {
+
+        const canvas =
+            document.createElement("canvas");
+
+        canvas.width = 300;
+
+        canvas.height = 300;
+
+        const context =
+            canvas.getContext("2d");
+
+        context.drawImage(
+            image,
+            0,
+            0,
+            300,
+            300
+        );
+
+        const link =
+            document.createElement("a");
+
+        link.download =
+            controllerID + "_QR.png";
+
+        link.href =
+            canvas.toDataURL("image/png");
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        return;
+    }
+
+
+    alert(
+        "QR code is not ready yet. Please wait a moment and try again."
+    );
+}
+
+
+/*
+ * OPEN CONTROLLER
+ */
+
+function openController()
+{
+    window.open(
+        controllerURL,
+        "_blank"
+    );
 }
 
 </script>
