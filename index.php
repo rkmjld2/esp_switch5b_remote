@@ -4,7 +4,6 @@
  ESP-SWITCH5B REMOTE - index.php
  SINGLE CONTROLLER REMOTE CONTROL PANEL
 ============================================================
-
 Friendly URL:
 
     /c/ESP0001
